@@ -129,6 +129,11 @@ This document captures key learnings and insights from developing the FuelEU Mar
 **Solution:** Implemented logic in PoolingRepository to find or create ShipCompliance records before creating PoolMember entries
 **Learning:** Foreign key constraints require actual database records - cannot use placeholder values. Need to handle dependent record creation in repository layer.
 
+### Challenge 6: TailwindCSS v4 PostCSS Plugin
+**Problem:** TailwindCSS v4 moved the PostCSS plugin to a separate package, causing error when using `tailwindcss` directly as PostCSS plugin
+**Solution:** Installed `@tailwindcss/postcss` package and updated `postcss.config.js` to use `@tailwindcss/postcss` instead of `tailwindcss`. Also updated CSS to use `@import "tailwindcss"` instead of `@tailwind` directives.
+**Learning:** TailwindCSS v4 has different setup requirements - always check version-specific documentation when setting up new projects.
+
 ---
 
 ## What Would We Do Differently?
@@ -199,6 +204,14 @@ This document captures key learnings and insights from developing the FuelEU Mar
 - Use environment variables for configuration
 - Add health check endpoints early
 
+### React + Vite Best Practices:
+- Use path aliases (`@/` for `src/`) for cleaner imports
+- Configure aliases in both `tsconfig.json` and `vite.config.ts`
+- Follow hexagonal architecture pattern in frontend (ports and adapters)
+- Use TypeScript interfaces for port contracts
+- Keep API adapters thin - delegate to BackendApi for HTTP calls
+- Use TailwindCSS v4 syntax (`@import "tailwindcss"`) instead of v3 directives
+
 ---
 
 ## Conclusion
@@ -239,14 +252,64 @@ The main challenges were around understanding framework limitations (Prisma) and
   - Creates pool and adds members with before/after CB values
   - Handles ShipCompliance creation for PoolMember foreign keys
 
+## Frontend Development (Tasks #15-18)
+
+### Vite React TypeScript Setup (Task #15)
+- **Created Vite React TypeScript project** in `frontend/` folder
+  - Used `npm create vite@latest` with React TypeScript template
+  - Installed all dependencies including axios for API calls
+- **Installed and configured TailwindCSS v4**
+  - Installed `tailwindcss`, `postcss`, `autoprefixer`, and `@tailwindcss/postcss`
+  - Created `tailwind.config.js` with content paths for React components
+  - Created `postcss.config.js` with `@tailwindcss/postcss` plugin
+  - Updated `src/index.css` with `@import "tailwindcss"` (v4 syntax)
+  - **Challenge**: TailwindCSS v4 requires `@tailwindcss/postcss` package instead of direct `tailwindcss` plugin
+  - **Solution**: Updated PostCSS config to use `@tailwindcss/postcss` and CSS to use v4 import syntax
+- **Configured path aliases**
+  - Added `@` alias in `tsconfig.app.json` pointing to `./src`
+  - Added `@` alias in `vite.config.ts` for module resolution
+  - Enables clean imports like `@/core/ports/RoutesPort`
+
+### Frontend Architecture Setup (Task #16)
+- **Created folder structure** following hexagonal architecture:
+  - `src/core/ports/` - Port interfaces (contracts)
+  - `src/adapters/outbound/api/` - API adapters for backend communication
+  - `src/adapters/ui/` - UI adapters (for future use)
+  - `src/pages/` - Page components
+  - `src/shared/` - Shared utilities and components
+- **Created port interfaces** matching backend functionality:
+  - `RoutesPort` - `getRoutes()`, `setBaseline()`
+  - `ComparisonPort` - `getComparison()`
+  - `BankingPort` - `getCB()`, `bankSurplus()`, `applyBanked()`
+  - `PoolingPort` - `createPool()`
+
+### API Adapters (Tasks #17-18)
+- **Created BackendApi** (`BackendApi.ts`)
+  - Axios instance configured with `baseURL: "http://localhost:3000"`
+  - All API methods matching backend endpoints:
+    - Routes: `getRoutes()`, `setBaseline()`
+    - Comparison: `getComparison()`
+    - Banking: `getCB()`, `bankSurplus()`, `applyBanked()`
+    - Pooling: `createPool()`
+- **Created API adapters** implementing port interfaces:
+  - `RoutesApiAdapter` - Implements `RoutesPort`
+  - `ComparisonApiAdapter` - Implements `ComparisonPort`
+  - `BankingApiAdapter` - Implements `BankingPort`
+  - `PoolingApiAdapter` - Implements `PoolingPort`
+- All adapters use `BackendApi` to make HTTP calls and return response data
+
+**Key Takeaway:** Frontend follows the same hexagonal architecture pattern as backend, with ports defining contracts and adapters implementing them. This ensures clean separation and easy testing.
+
 ## Next Steps
 
 1. ✅ Seed initial 5 routes - **COMPLETED**
 2. ✅ Implement core domain logic (computeGHGIntensity, computeCB) - **COMPLETED**
 3. ✅ Build repository adapters - **COMPLETED**
 4. ✅ Create HTTP endpoints (routes, compliance, banking, pooling) - **COMPLETED**
-5. ⏳ Add tests (unit tests, integration tests) - **PENDING**
-6. ⏳ Implement frontend - **PENDING**
+5. ✅ Setup frontend project (Vite React TypeScript + TailwindCSS) - **COMPLETED**
+6. ✅ Create frontend architecture and API adapters - **COMPLETED**
+7. ⏳ Add tests (unit tests, integration tests) - **PENDING**
+8. ⏳ Build UI components and pages - **PENDING**
 
-The backend API is now fully functional with all core features implemented. The architecture and database foundation are solid, making testing and frontend integration straightforward.
+The backend API is fully functional and the frontend foundation is now in place with proper architecture. The API adapters are ready to be used by UI components.
 

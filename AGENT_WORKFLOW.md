@@ -108,6 +108,51 @@
   - Registered `/pools` endpoint
 - **Context**: Implementing pooling functionality to allow routes to share compliance balance
 
+### Example 10: Frontend Task #15 - Create Vite React TypeScript Project
+- **Prompt**: "Create a new Vite React TypeScript project in the frontend folder and install TailwindCSS."
+- **Generated Output**:
+  - Created Vite React TypeScript project using `npm create vite@latest frontend -- --template react-ts`
+  - Installed all project dependencies
+  - Installed TailwindCSS dependencies: `tailwindcss`, `postcss`, `autoprefixer`
+  - Created `tailwind.config.js` with content paths: `["./index.html", "./src/**/*.{js,ts,jsx,tsx}"]`
+  - Created `postcss.config.js` with TailwindCSS plugin
+  - Added TailwindCSS directives to `src/index.css`
+  - Installed `axios` package for API calls
+  - Started development server with `npm run dev`
+- **Context**: Setting up frontend project with modern tooling
+- **Correction**: TailwindCSS v4 requires `@tailwindcss/postcss` package and `@import "tailwindcss"` syntax
+  - Updated `postcss.config.js` to use `@tailwindcss/postcss` instead of `tailwindcss`
+  - Updated `src/index.css` to use `@import "tailwindcss"` instead of `@tailwind` directives
+
+### Example 11: Frontend Task #16 - Create Folder Structure and Port Interfaces
+- **Prompt**: "Create the following folder structure under src: core/ports, adapters/outbound/api, adapters/ui, pages, shared. Then create port interfaces."
+- **Generated Output**:
+  - Created folder structure following hexagonal architecture:
+    - `src/core/ports/` - Port interfaces
+    - `src/adapters/outbound/api/` - API adapters
+    - `src/adapters/ui/` - UI adapters
+    - `src/pages/` - Page components
+    - `src/shared/` - Shared utilities
+  - Created port interfaces:
+    - `RoutesPort.ts` - `getRoutes()`, `setBaseline()`
+    - `ComparisonPort.ts` - `getComparison()`
+    - `BankingPort.ts` - `getCB()`, `bankSurplus()`, `applyBanked()`
+    - `PoolingPort.ts` - `createPool()`
+- **Context**: Setting up frontend architecture matching backend structure
+
+### Example 12: Frontend Task #17-18 - Create BackendApi and API Adapters
+- **Prompt**: "Create BackendApi.ts and API adapters implementing port interfaces."
+- **Generated Output**:
+  - Created `BackendApi.ts` with axios instance configured for `http://localhost:3000`
+  - Implemented all API methods matching backend endpoints
+  - Created API adapters:
+    - `RoutesApiAdapter` - Implements `RoutesPort`
+    - `ComparisonApiAdapter` - Implements `ComparisonPort`
+    - `BankingApiAdapter` - Implements `BankingPort`
+    - `PoolingApiAdapter` - Implements `PoolingPort`
+  - Configured path aliases (`@/` for `src/`) in `tsconfig.app.json` and `vite.config.ts`
+- **Context**: Creating API layer to communicate with backend
+
 ## Validation / Corrections
 
 ### Verification Process
@@ -185,6 +230,9 @@
 - **Pooling shipComplianceId**: Initially tried to use placeholder values for `shipComplianceId` in PoolMember
 - **Correction**: Implemented logic to find or create ShipCompliance records before creating PoolMember
 - **Learning**: Foreign key constraints require actual records - cannot use placeholders
+- **TailwindCSS v4 Setup**: Initially used `@tailwind` directives which are for v3
+- **Correction**: Updated to use `@tailwindcss/postcss` package and `@import "tailwindcss"` syntax for v4
+- **Learning**: TailwindCSS v4 has different setup requirements - PostCSS plugin moved to separate package
 
 ### How Tools Were Combined Effectively
 - Used `list_dir` to check existing workspace structure before creating files
@@ -224,4 +272,11 @@
 - [x] Handled foreign key constraints properly in all repositories
 - [x] Added comprehensive error handling in all controllers
 - [x] Used Prisma aggregate functions for efficient data queries
+- [x] Created Vite React TypeScript frontend project
+- [x] Installed and configured TailwindCSS v4 with PostCSS
+- [x] Set up frontend folder structure following hexagonal architecture
+- [x] Created port interfaces (RoutesPort, ComparisonPort, BankingPort, PoolingPort)
+- [x] Created BackendApi with axios for API communication
+- [x] Created API adapters implementing all port interfaces
+- [x] Configured path aliases (@/ for src/) in TypeScript and Vite
 
