@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import { getRoutesHandler, setBaselineHandler } from './adapters/inbound/http/routesController';
 import { getRoutesComparisonHandler } from './adapters/inbound/http/routesComparisonController';
 import { getCBHandler } from './adapters/inbound/http/complianceController';
-import { bankSurplusHandler } from './adapters/inbound/http/bankingController';
+import { bankSurplusHandler, applyBankedHandler } from './adapters/inbound/http/bankingController';
+import { createPoolHandler } from './adapters/inbound/http/poolingController';
 
 dotenv.config();
 
@@ -31,6 +32,10 @@ app.get('/compliance/cb', getCBHandler);
 
 // Banking endpoints
 app.post('/banking/bank', bankSurplusHandler);
+app.post('/banking/apply', applyBankedHandler);
+
+// Pooling endpoints
+app.post('/pools', createPoolHandler);
 
 // Start server
 app.listen(PORT, () => {

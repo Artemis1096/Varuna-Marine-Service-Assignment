@@ -119,6 +119,16 @@ This document captures key learnings and insights from developing the FuelEU Mar
 **Solution:** Used terminal commands to create file, documented in README
 **Learning:** Have alternative approaches for blocked file operations
 
+### Challenge 4: BankEntry Schema Relations
+**Problem:** BankEntry model had relations to both Route and ShipCompliance, but ShipCompliance relation was missing opposite field
+**Solution:** Removed `bankEntries` relation from ShipCompliance model, added `routeId` to BankEntry, and established proper Route → BankEntry relation
+**Learning:** Always ensure both sides of Prisma relations are properly defined before running migrations
+
+### Challenge 5: Pooling shipComplianceId Requirement
+**Problem:** PoolMember model requires `shipComplianceId` foreign key, but pooling API only receives routeCodes
+**Solution:** Implemented logic in PoolingRepository to find or create ShipCompliance records before creating PoolMember entries
+**Learning:** Foreign key constraints require actual database records - cannot use placeholder values. Need to handle dependent record creation in repository layer.
+
 ---
 
 ## What Would We Do Differently?
@@ -127,6 +137,9 @@ This document captures key learnings and insights from developing the FuelEU Mar
 2. **Research Prisma limitations earlier** - Would have avoided composite key issues
 3. **Create .env.example earlier** - Would have provided better setup guidance
 4. **Add validation layer earlier** - Would catch data issues sooner
+5. **Plan foreign key dependencies better** - Would have avoided BankEntry relation issues
+6. **Consider ShipCompliance creation earlier** - Would have simplified PoolingRepository implementation
+7. **Add integration tests earlier** - Would catch schema issues before they become problems
 
 ---
 
@@ -137,6 +150,11 @@ This document captures key learnings and insights from developing the FuelEU Mar
 3. **Database Design**: Well-structured schema with proper relationships
 4. **Documentation**: Comprehensive documentation throughout development
 5. **Incremental Progress**: Task-by-task approach kept project manageable
+6. **Banking Implementation**: Successfully implemented banking functionality with proper surplus/deficit handling
+7. **Pooling Algorithm**: Implemented efficient pooling algorithm that transfers surplus to cover deficits
+8. **Repository Pattern**: Successfully used repository pattern to handle complex foreign key dependencies
+9. **Error Handling**: Comprehensive error handling in all controllers with appropriate HTTP status codes
+10. **Prisma Integration**: Effectively used Prisma aggregate functions for efficient data queries
 
 ---
 
@@ -165,6 +183,9 @@ This document captures key learnings and insights from developing the FuelEU Mar
 - Use cascade deletes carefully - understand data dependencies
 - Generate Prisma Client after schema changes
 - Format schema before committing
+- Always ensure both sides of relations are properly defined
+- Use aggregate functions (`_sum`, `_count`) for efficient data queries
+- Handle dependent record creation in repository layer when foreign keys are required
 
 ### TypeScript Best Practices:
 - Strict mode is worth the initial friction
@@ -194,13 +215,38 @@ The main challenges were around understanding framework limitations (Prisma) and
 
 ---
 
+## Recent Accomplishments (Backend Tasks #12-14)
+
+### Banking Functionality (Tasks #12-13)
+- **POST /banking/bank**: Successfully implemented banking of surplus CB
+  - Validates that CB is positive (surplus) before banking
+  - Creates bank entries with proper routeId foreign key
+  - Returns banked amount for confirmation
+  
+- **POST /banking/apply**: Successfully implemented applying banked surplus
+  - Gets available banked amount using Prisma aggregate
+  - Validates route has deficit before applying
+  - Calculates apply amount as min(deficit, available)
+  - Creates APPLIED bank entries
+  - Returns applied amount and deficit before/after
+
+### Pooling Functionality (Task #14)
+- **POST /pools**: Successfully implemented pooling mechanism
+  - Gets CB for all routes in pool
+  - Separates routes into surplus and deficit
+  - Validates pool doesn't have net deficit
+  - Implements transfer algorithm to cover deficits with surplus
+  - Creates pool and adds members with before/after CB values
+  - Handles ShipCompliance creation for PoolMember foreign keys
+
 ## Next Steps
 
-1. Continue with task #4: Seed initial 5 routes
-2. Implement core domain logic (task #5)
-3. Build repository adapters (task #6)
-4. Create HTTP endpoints (task #7)
-5. Add tests (task #8)
+1. ✅ Seed initial 5 routes - **COMPLETED**
+2. ✅ Implement core domain logic (computeGHGIntensity, computeCB) - **COMPLETED**
+3. ✅ Build repository adapters - **COMPLETED**
+4. ✅ Create HTTP endpoints (routes, compliance, banking, pooling) - **COMPLETED**
+5. ⏳ Add tests (unit tests, integration tests) - **PENDING**
+6. ⏳ Implement frontend - **PENDING**
 
-The architecture and database foundation are in place, making these next steps straightforward to implement.
+The backend API is now fully functional with all core features implemented. The architecture and database foundation are solid, making testing and frontend integration straightforward.
 

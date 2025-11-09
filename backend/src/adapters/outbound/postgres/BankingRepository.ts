@@ -27,5 +27,32 @@ export class BankingRepository implements BankingRepositoryPort {
       },
     });
   }
+
+  async getAvailableBanked(routeCode: string, year: number): Promise<number> {
+    const result = await this.prisma.bankEntry.aggregate({
+      where: { routeCode, year, type: 'BANKED', applied: false },
+      _sum: { amount: true },
+    });
+    return result._sum.amount || 0;
+  }
+
+  async markApplied(routeCode: string, year: number, amount: number): Promise<void> {
+    // Find route to get routeId
+    const route = await this.routesRepo.findByRouteCode(routeCode);
+    if (!route) {
+      throw new Error(`Route with code ${routeCode} not found`);
+    }
+
+    await this.prisma.bankEntry.create({
+      data: {
+        routeCode,
+        routeId: route.id,
+        year,
+        amount,
+        type: 'APPLIED',
+        applied: true,
+      },
+    });
+  }
 }
 

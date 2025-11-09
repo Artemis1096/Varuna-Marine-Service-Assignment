@@ -69,6 +69,45 @@
   - Structure: core/ (domain, application, services), ports/ (inbound, outbound), adapters/ (inbound/http, outbound/postgres), infrastructure/ (db, config), shared/
 - **Context**: Reorganizing to clean architecture pattern before implementing business logic
 
+### Example 7: Backend Task #12 - Implement POST /banking/bank
+- **Prompt**: "Backend Task #12 — Implement POST /banking/bank"
+- **Generated Output**:
+  - Created `BankSurplusPort` interface for inbound port
+  - Created `BankingRepositoryPort` interface with `addBankEntry` method
+  - Implemented `BankingRepository` with Prisma integration
+  - Created `BankSurplusService` use-case that gets CB and validates surplus
+  - Created `bankingController` with `bankSurplusHandler`
+  - Registered `/banking/bank` endpoint in Express server
+- **Context**: Implementing banking functionality to store surplus CB for future use
+
+### Example 8: Backend Task #13 - Implement POST /banking/apply
+- **Prompt**: "Backend Task #13 — Implement POST /banking/apply"
+- **Generated Output**:
+  - Added `getAvailableBanked` and `markApplied` methods to `BankingRepositoryPort`
+  - Implemented `getAvailableBanked` using Prisma aggregate to sum available banked amounts
+  - Implemented `markApplied` to create APPLIED bank entries
+  - Created `ApplyBankedService` use-case that applies banked surplus to cover deficits
+  - Added `applyBankedHandler` to banking controller
+  - Registered `/banking/apply` endpoint
+- **Context**: Implementing functionality to apply previously banked surplus to cover current deficits
+
+### Example 9: Backend Task #14 - Implement POST /pools (Pooling)
+- **Prompt**: "Backend Task #14 — Implement Pooling"
+- **Generated Output**:
+  - Created `CreatePoolPort` interface for inbound port
+  - Created `PoolingRepositoryPort` interface with `createPool` and `addMember` methods
+  - Implemented `PoolingRepository` with Prisma integration
+  - Handled `shipComplianceId` requirement by creating ShipCompliance records when needed
+  - Created `CreatePoolService` use-case implementing pooling algorithm:
+    - Gets CB for all routes in pool
+    - Separates surplus and deficit routes
+    - Validates pool doesn't have net deficit
+    - Transfers surplus to cover deficits
+    - Creates pool and adds members with before/after CB values
+  - Created `poolingController` with `createPoolHandler`
+  - Registered `/pools` endpoint
+- **Context**: Implementing pooling functionality to allow routes to share compliance balance
+
 ## Validation / Corrections
 
 ### Verification Process
@@ -99,7 +138,15 @@
   - R001 marked as baseline with baseline value 100.0
   - Note: Prisma config in package.json is deprecated (will be removed in Prisma 7) but still works
   - Seed script executed successfully
-- All files created successfully with proper structure
+- **BankEntry Schema Fix**:
+  - Initially had `bankEntries` relation in both Route and ShipCompliance models
+  - Fixed by removing relation from ShipCompliance and adding `routeId` to BankEntry
+  - Updated migration to fix foreign key constraints
+  - BankingRepository now properly creates bank entries with routeId
+- **Pooling Implementation**:
+  - Handled `shipComplianceId` requirement in PoolMember by creating ShipCompliance records when needed
+  - Fixed pooling algorithm to properly track before/after CB values
+  - All files created successfully with proper structure
 - TypeScript configuration follows best practices
 - Hexagonal architecture structure properly established
 
@@ -132,6 +179,12 @@
 - **Prisma composite foreign keys**: Initially tried to use composite unique keys directly in relations
 - **Correction**: Prisma doesn't support composite foreign keys in relations - fixed by using `shipComplianceId` field
 - **Learning**: Need to understand Prisma's limitations with composite keys in relations
+- **BankEntry schema relations**: Initially had `bankEntries` relation in ShipCompliance model without corresponding field in BankEntry
+- **Correction**: Removed relation from ShipCompliance, added `routeId` to BankEntry, and fixed foreign key constraints
+- **Learning**: Always ensure both sides of a Prisma relation are properly defined
+- **Pooling shipComplianceId**: Initially tried to use placeholder values for `shipComplianceId` in PoolMember
+- **Correction**: Implemented logic to find or create ShipCompliance records before creating PoolMember
+- **Learning**: Foreign key constraints require actual records - cannot use placeholders
 
 ### How Tools Were Combined Effectively
 - Used `list_dir` to check existing workspace structure before creating files
@@ -166,4 +219,9 @@
 - [x] Created seed script for initial data
 - [x] Seeded 5 routes with R001 as baseline
 - [x] Added Prisma seed script to package.json
+- [x] Implemented banking functionality (bank surplus, apply banked)
+- [x] Implemented pooling functionality with surplus/deficit transfer algorithm
+- [x] Handled foreign key constraints properly in all repositories
+- [x] Added comprehensive error handling in all controllers
+- [x] Used Prisma aggregate functions for efficient data queries
 
