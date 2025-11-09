@@ -1,0 +1,2 @@
+// PostgreSQL adapters (Prisma repositories)
+

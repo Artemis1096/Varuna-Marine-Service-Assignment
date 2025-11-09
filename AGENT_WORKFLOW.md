@@ -40,6 +40,35 @@
   - Updated README.md with Prisma setup instructions
 - **Context**: Setting up database connection layer before creating schema
 
+### Example 4: Backend Task #3 - Create Database Schema
+- **Prompt**: "Continue with backend task #3. Define the database schema in prisma/schema.prisma: routes, ship_compliance, bank_entries, pools, pool_members. Do not implement business logic yet. Just write schema + run migrations."
+- **Generated Output**:
+  - Created 5 Prisma models: Route, ShipCompliance, BankEntry, Pool, PoolMember
+  - Defined relationships between models (Route → ShipCompliance, ShipCompliance → BankEntry, Pool → PoolMember)
+  - Added proper indexes and unique constraints
+  - Formatted schema with `prisma format`
+  - Generated Prisma Client
+  - Created and applied migration `20251109094440_init`
+- **Context**: Creating database schema for FuelEU Maritime Compliance Platform
+
+### Example 5: Backend Task #4 - Seed Initial 5 Routes
+- **Prompt**: "Backend task #4: Create prisma/seed.ts to insert the 5 routes dataset and mark R001 as baseline. Add `\"prisma\": \"prisma db seed\"` script to package.json. Then run the seed script."
+- **Generated Output**:
+  - Created `prisma/seed.ts` with 5 maritime routes (R001-R005)
+  - R001 marked as baseline with baseline value of 100.0
+  - Added `"prisma": "prisma db seed"` script to package.json
+  - Added Prisma seed configuration in package.json
+  - Successfully ran seed script - all 5 routes created
+- **Context**: Seeding initial data for development and testing
+
+### Example 6: Backend Task #5 - Reorganize to Clean Architecture
+- **Prompt**: "Backend task #5: Create clean architecture folders: src/core/domain, application, services; src/ports/inbound, outbound; src/adapters/inbound/http, outbound/postgres; src/infrastructure/db, config; src/shared. Do not fill logic yet, just folders + index files."
+- **Generated Output**:
+  - Created new clean architecture folder structure
+  - Added index.ts files to all folders with descriptive comments
+  - Structure: core/ (domain, application, services), ports/ (inbound, outbound), adapters/ (inbound/http, outbound/postgres), infrastructure/ (db, config), shared/
+- **Context**: Reorganizing to clean architecture pattern before implementing business logic
+
 ## Validation / Corrections
 
 ### Verification Process
@@ -60,6 +89,16 @@
   - Created `.env` file blocked by globalIgnore - documented in README instead
   - Created `.env.example` also blocked - instructions provided in README
   - All Prisma configuration files created successfully
+- **Database Schema**:
+  - Initially tried to use composite foreign keys in relations (not supported by Prisma)
+  - Fixed by using `shipComplianceId` field instead of composite key references
+  - All models created with proper relationships and constraints
+  - Migration successfully applied to database
+- **Seed Script**:
+  - Created seed.ts with 5 routes (R001-R005)
+  - R001 marked as baseline with baseline value 100.0
+  - Note: Prisma config in package.json is deprecated (will be removed in Prisma 7) but still works
+  - Seed script executed successfully
 - All files created successfully with proper structure
 - TypeScript configuration follows best practices
 - Hexagonal architecture structure properly established
@@ -75,6 +114,14 @@
   - Added dependencies and scripts in one batch
   - Created connection test script for immediate validation
   - Set up proper Prisma schema structure ready for models
+- **Schema creation**: Efficiently designed database schema
+  - Created all 5 models with relationships in one go
+  - Properly structured foreign keys and unique constraints
+  - Successfully ran migrations to create database tables
+- **Data seeding**: Quickly created seed script for initial data
+  - Created 5 routes with realistic maritime route data
+  - Properly marked R001 as baseline
+  - Seed script executed successfully
 - **Consistency**: Ensured all files follow TypeScript and Express best practices
 - **Documentation**: Auto-generated README.md with project structure and setup instructions
 
@@ -82,6 +129,9 @@
 - **Initial folder structure**: Created a simpler structure initially (`domain/`, `ports/` at root) instead of the nested `core/` structure
 - **Correction needed**: User clarified the exact structure, requiring reorganization
 - **Learning**: Should have asked for clarification on folder structure or followed a more standard hexagonal architecture pattern from the start
+- **Prisma composite foreign keys**: Initially tried to use composite unique keys directly in relations
+- **Correction**: Prisma doesn't support composite foreign keys in relations - fixed by using `shipComplianceId` field
+- **Learning**: Need to understand Prisma's limitations with composite keys in relations
 
 ### How Tools Were Combined Effectively
 - Used `list_dir` to check existing workspace structure before creating files
@@ -92,6 +142,9 @@
 - Used `search_replace` to update README.md documentation after structure changes
 - Used `read_file` to verify existing configuration before making changes
 - Batch updated package.json with multiple search_replace operations
+- Used `codebase_search` to understand context before creating schema
+- Used terminal commands to format schema, generate client, and run migrations
+- Validated schema with Prisma format and linting before migration
 
 ## Best Practices Followed
 
@@ -107,4 +160,10 @@
 - [x] Set up Prisma with PostgreSQL connection
 - [x] Created database connection test script
 - [x] Added Prisma scripts for common operations
+- [x] Created database schema with all required models
+- [x] Defined proper relationships and constraints
+- [x] Successfully ran database migrations
+- [x] Created seed script for initial data
+- [x] Seeded 5 routes with R001 as baseline
+- [x] Added Prisma seed script to package.json
 

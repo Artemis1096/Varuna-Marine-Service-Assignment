@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,5 +7,87 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be added in the next task
+model Route {
+  id                     String   @id @default(uuid())
+  routeCode              String   @unique
+  name                   String
+  origin                 String
+  destination            String
+  distance               Float
+  fuelType               String?               // temporary
+  fuelConsumptionTonnes  Float?               // temporary
+  year                   Int?                 // temporary
+  ghgIntensity           Float?
+  is_baseline            Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  bankEntries            BankEntry[]
+  shipCompliance         ShipCompliance[]
 
+  @@map("routes")
+}
+
+
+
+model ShipCompliance {
+  id          String       @id @default(uuid())
+  shipId      String
+  shipName    String
+  routeId     String
+  year        Int
+  cb          Float
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  poolMembers PoolMember[]
+  route       Route        @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([shipId, routeId, year])
+  @@map("ship_compliance")
+}
+
+model BankEntry {
+  id        String   @id @default(uuid())
+  routeCode String
+  routeId   String
+  year      Int
+  amount    Float
+  type      String   // "BANKED" or "APPLIED"
+  applied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@map("bank_entries")
+}
+
+
+model Pool {
+  id          String       @id @default(uuid())
+  name        String
+  year        Int
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     PoolMember[]
+
+  @@unique([name, year])
+  @@map("pools")
+}
+
+model PoolMember {
+  id               String         @id @default(uuid())
+  poolId           String
+  shipId           String
+  routeId          String
+  year             Int
+  shipComplianceId String
+  cbBefore         Float
+  cbAfter          Float?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  pool             Pool           @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  shipCompliance   ShipCompliance @relation(fields: [shipComplianceId], references: [id], onDelete: Cascade)
+
+  @@unique([poolId, shipId, routeId, year])
+  @@map("pool_members")
+}

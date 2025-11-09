@@ -1,6 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { getRoutesHandler, setBaselineHandler } from './adapters/inbound/http/routesController';
+import { getRoutesComparisonHandler } from './adapters/inbound/http/routesComparisonController';
+import { getCBHandler } from './adapters/inbound/http/complianceController';
+import { bankSurplusHandler } from './adapters/inbound/http/bankingController';
 
 dotenv.config();
 
@@ -16,6 +20,17 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'FuelEU Maritime Compliance Platform API' });
 });
+
+// Routes endpoints
+app.get('/routes', getRoutesHandler);
+app.post('/routes/:code/baseline', setBaselineHandler);
+app.get('/routes/comparison', getRoutesComparisonHandler);
+
+// Compliance endpoints
+app.get('/compliance/cb', getCBHandler);
+
+// Banking endpoints
+app.post('/banking/bank', bankSurplusHandler);
 
 // Start server
 app.listen(PORT, () => {
