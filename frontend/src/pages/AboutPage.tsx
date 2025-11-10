@@ -1,12 +1,19 @@
+import {
+  pageContainer,
+  sectionSpacing,
+  pageTitle,
+  cardContent,
+} from "@/shared/theme";
+
 export function AboutPage() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+    <div className={pageContainer}>
+      <div className={sectionSpacing}>
+        <h1 className={pageTitle}>
           About FuelEU Maritime Compliance Platform
         </h1>
         
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Platform Purpose</h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             The FuelEU Maritime Compliance Platform is a comprehensive system designed to help maritime operators 
@@ -27,7 +34,7 @@ export function AboutPage() {
           </ul>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Key Concepts</h2>
           
           <div className="space-y-4">
@@ -60,7 +67,7 @@ export function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Page Descriptions</h2>
           
           <div className="space-y-6">
@@ -79,8 +86,12 @@ export function AboutPage() {
                 <li>Baseline status</li>
               </ul>
               <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
-                You can designate any non-baseline route as the new baseline route, which will automatically 
-                update comparisons across the system.
+                <strong className="text-gray-900 dark:text-gray-100">Filtering:</strong> You can filter routes by vessel type, fuel type, and year to quickly find specific routes. 
+                The filters dynamically update based on available data in the system.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Baseline Management:</strong> You can designate any non-baseline route as the new baseline route, which will automatically 
+                update comparisons across the system. The "Set Baseline" button shows a loading state during the operation.
               </p>
             </div>
 
@@ -96,8 +107,12 @@ export function AboutPage() {
                 <li>Displays visual charts showing baseline vs. comparison intensities</li>
               </ul>
               <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
-                This helps identify which routes are performing better or worse than the baseline and whether 
-                they meet the regulatory target intensity.
+                <strong className="text-gray-900 dark:text-gray-100">Compliance Calculation:</strong> The system calculates percentage difference using the formula: 
+                <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs ml-1">percentDiff = ((comparison / baseline) - 1) × 100</code>
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Visualization:</strong> Interactive charts display baseline vs. comparison intensities, making it easy to identify 
+                which routes are performing better or worse than the baseline and whether they meet the regulatory target intensity.
               </p>
             </div>
 
@@ -112,7 +127,16 @@ export function AboutPage() {
                 <li>Apply previously banked surplus to offset current deficits (negative balance)</li>
               </ul>
               <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
-                Banking allows operators to carry forward compliance surpluses from one year to the next, 
+                <strong className="text-gray-900 dark:text-gray-100">KPI Display:</strong> The page displays key performance indicators including CB (before), Applied amount, 
+                and CB (after) in a clear, formatted view. Values are automatically formatted in tonnes or grams based on magnitude.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Validation & Error Handling:</strong> The system validates all operations and provides clear error messages 
+                with machine-readable error codes. Buttons are automatically disabled when operations are in progress or when 
+                conditions are not met (e.g., cannot bank if CB ≤ 0, cannot apply if no deficit).
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Banking Mechanism:</strong> Banking allows operators to carry forward compliance surpluses from one year to the next, 
                 providing flexibility in meeting regulatory requirements. Banked credits can be applied to 
                 routes with deficits in subsequent years.
               </p>
@@ -129,15 +153,32 @@ export function AboutPage() {
                 <li>View CB before and after pooling for each member route</li>
               </ul>
               <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
-                Pooling allows operators to combine routes with surpluses and deficits, redistributing the 
-                total CB across all members. This mechanism helps optimize compliance across a fleet by 
+                <strong className="text-gray-900 dark:text-gray-100">Adjusted CB:</strong> The system uses adjusted CB values, which account for previously applied banked surplus. 
+                This ensures accurate pooling calculations that reflect the current state of each route.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Pool Validation:</strong> The system enforces strict validation rules:
+              </p>
+              <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm space-y-1 ml-4 mt-1">
+                <li>Pool sum (sum of all CB values) must be ≥ 0</li>
+                <li>At least one deficit ship and one surplus ship must be selected</li>
+                <li>No deficit ship can end up worse after pooling</li>
+                <li>No surplus ship can end up negative after pooling</li>
+              </ul>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Visual Indicators:</strong> Pool sum is displayed with color-coded indicators (green for ≥ 0, red for &lt; 0). 
+                The "Create Pool" button is automatically disabled if validation rules are not met.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mt-2">
+                <strong className="text-gray-900 dark:text-gray-100">Pooling Mechanism:</strong> Pooling allows operators to combine routes with surpluses and deficits, redistributing the 
+                total CB across all members using a greedy allocation algorithm. This mechanism helps optimize compliance across a fleet by 
                 allowing routes with surpluses to offset deficits in other routes within the same pool.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Core Formulas</h2>
           <div className="space-y-4">
             <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
@@ -170,7 +211,7 @@ export function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Reference</h2>
           <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
             <p>
@@ -188,7 +229,60 @@ export function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
+        <div className={cardContent}>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">User Experience Features</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Shared UI Components</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">
+                The platform uses consistent, reusable UI components across all pages:
+              </p>
+              <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm space-y-1 ml-4">
+                <li><strong className="text-gray-900 dark:text-gray-100">ErrorBanner:</strong> Displays API errors with error codes and dismissible functionality</li>
+                <li><strong className="text-gray-900 dark:text-gray-100">Loading:</strong> Shows loading states during async operations</li>
+                <li><strong className="text-gray-900 dark:text-gray-100">SuccessBanner:</strong> Provides feedback for successful operations</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Normalized Error Handling</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                All API errors are handled consistently with machine-readable error codes. Errors are displayed 
+                in user-friendly banners with the ability to dismiss them. Field-level validation errors are 
+                shown directly under input fields for immediate feedback.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Button State Management</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                All action buttons automatically show loading states during operations and are disabled to prevent 
+                duplicate submissions. Buttons are also intelligently disabled based on business rules (e.g., 
+                cannot bank if CB ≤ 0, cannot apply if no deficit).
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Theme System</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                The platform uses a centralized theme system with shared Tailwind CSS classNames, ensuring 
+                consistent styling across all pages. This includes standardized tables, buttons, cards, KPIs, 
+                and charts with proper spacing, shadows, and rounded corners.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Dark Mode Support</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                The entire platform supports dark mode with smooth transitions. The theme preference is 
+                persisted in localStorage and automatically applied on page load. All components are designed 
+                with dark mode-friendly colors.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={cardContent}>
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Technical Details</h2>
           <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
             <p>
@@ -204,6 +298,14 @@ export function AboutPage() {
             <p>
               <strong className="text-gray-900 dark:text-gray-100">Emission Factors:</strong> Uses Annex II default pathway emission 
               factors from the FuelEU Maritime Regulation for calculating GHG intensities
+            </p>
+            <p>
+              <strong className="text-gray-900 dark:text-gray-100">UI Components:</strong> Shared components (ErrorBanner, Loading, SuccessBanner) 
+              for consistent user experience across all pages
+            </p>
+            <p>
+              <strong className="text-gray-900 dark:text-gray-100">Styling:</strong> Centralized theme system with Tailwind CSS classNames 
+              for maintainable and consistent design
             </p>
           </div>
         </div>
