@@ -8,61 +8,71 @@ async function main() {
   // Clear existing routes (optional - for clean seed)
   await prisma.route.deleteMany({});
 
-  // Create 5 routes
+  // Create 5 routes with provided data
   const routes = [
     {
       routeCode: 'R001',
-      name: 'R001',
-      origin: 'Rotterdam',
-      destination: 'Singapore',
-      distance: 8500.0,
+      vesselType: 'Container',
+      origin: 'Port A',
+      destination: 'Port B',
+      distance: 12000.0, // km
       fuelType: 'HFO',
-      fuelConsumptionTonnes: 2500.0,
-      year: 2025,
+      fuelConsumptionTonnes: 5000.0,
+      year: 2024,
+      ghgIntensity: 91.0,
+      totalEmissions: 4500.0, // tonnes
       is_baseline: true, // Mark R001 as baseline
     },
     {
       routeCode: 'R002',
-      name: 'R002',
-      origin: 'Hamburg',
-      destination: 'Shanghai',
-      distance: 12000.0,
-      fuelType: 'MGO',
-      fuelConsumptionTonnes: 3200.0,
-      year: 2025,
+      vesselType: 'BulkCarrier',
+      origin: 'Port C',
+      destination: 'Port D',
+      distance: 11500.0, // km
+      fuelType: 'LNG',
+      fuelConsumptionTonnes: 4800.0,
+      year: 2024,
+      ghgIntensity: 88.0,
+      totalEmissions: 4200.0, // tonnes
       is_baseline: false,
     },
     {
       routeCode: 'R003',
-      name: 'R003',
-      origin: 'Los Angeles',
-      destination: 'Tokyo',
-      distance: 5500.0,
-      fuelType: 'LNG',
-      fuelConsumptionTonnes: 1800.0,
-      year: 2025,
+      vesselType: 'Tanker',
+      origin: 'Port E',
+      destination: 'Port F',
+      distance: 12500.0, // km
+      fuelType: 'MGO',
+      fuelConsumptionTonnes: 5100.0,
+      year: 2024,
+      ghgIntensity: 93.5,
+      totalEmissions: 4700.0, // tonnes
       is_baseline: false,
     },
     {
       routeCode: 'R004',
-      name: 'R004',
-      origin: 'New York',
-      destination: 'London',
-      distance: 3200.0,
+      vesselType: 'RoRo',
+      origin: 'Port G',
+      destination: 'Port H',
+      distance: 11800.0, // km
       fuelType: 'HFO',
-      fuelConsumptionTonnes: 950.0,
+      fuelConsumptionTonnes: 4900.0,
       year: 2025,
+      ghgIntensity: 89.2,
+      totalEmissions: 4300.0, // tonnes
       is_baseline: false,
     },
     {
       routeCode: 'R005',
-      name: 'R005',
-      origin: 'Dubai',
-      destination: 'Mumbai',
-      distance: 1200.0,
-      fuelType: 'MGO',
-      fuelConsumptionTonnes: 350.0,
+      vesselType: 'Container',
+      origin: 'Port I',
+      destination: 'Port J',
+      distance: 11900.0, // km
+      fuelType: 'LNG',
+      fuelConsumptionTonnes: 4950.0,
       year: 2025,
+      ghgIntensity: 90.5,
+      totalEmissions: 4400.0, // tonnes
       is_baseline: false,
     },
   ];
@@ -71,7 +81,7 @@ async function main() {
     const created = await prisma.route.create({
       data: route,
     });
-    console.log(`Created route: ${created.name} (${created.origin} → ${created.destination})`);
+    console.log(`Created route: ${created.vesselType} (${created.origin} → ${created.destination})`);
   }
 
   console.log('Seed completed successfully!');

@@ -8,26 +8,25 @@ datasource db {
 }
 
 model Route {
-  id                     String   @id @default(uuid())
-  routeCode              String   @unique
-  name                   String
-  origin                 String
-  destination            String
-  distance               Float
-  fuelType               String?               // temporary
-  fuelConsumptionTonnes  Float?               // temporary
-  year                   Int?                 // temporary
-  ghgIntensity           Float?
-  is_baseline            Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  bankEntries            BankEntry[]
-  shipCompliance         ShipCompliance[]
+  id                    String           @id @default(uuid())
+  vesselType            String
+  origin                String
+  destination           String
+  distance              Float
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  is_baseline           Boolean          @default(false)
+  routeCode             String           @unique
+  fuelConsumptionTonnes Float?
+  fuelType              String?
+  ghgIntensity          Float?
+  year                  Int?
+  totalEmissions        Float?
+  bankEntries           BankEntry[]
+  shipCompliance        ShipCompliance[]
 
   @@map("routes")
 }
-
-
 
 model ShipCompliance {
   id          String       @id @default(uuid())
@@ -47,19 +46,18 @@ model ShipCompliance {
 
 model BankEntry {
   id        String   @id @default(uuid())
-  routeCode String
   routeId   String
   year      Int
   amount    Float
-  type      String   // "BANKED" or "APPLIED"
+  type      String
   applied   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  routeCode String
   route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@map("bank_entries")
 }
-
 
 model Pool {
   id          String       @id @default(uuid())
