@@ -4,6 +4,33 @@
 
 The FuelEU Maritime Compliance Platform is a comprehensive full-stack application designed to help maritime operators comply with the European Union's FuelEU Maritime Regulation (EU) 2023/1805. This regulation aims to reduce greenhouse gas (GHG) emissions from the maritime transport sector by setting intensity targets and implementing compliance mechanisms.
 
+## Screenshots
+
+### Routes Page
+![Routes Page](assets/img1.png)
+
+The Routes page displays all shipping routes with comprehensive data including vessel types, fuel consumption, distances, and emissions. Users can filter routes by vessel type, fuel type, and year, and set baseline routes for comparison.
+
+### Compare Page
+![Compare Page](assets/img2.png)
+
+The Compare page shows GHG intensity comparisons between baseline and other routes. It displays percentage differences, compliance status indicators, and visual charts comparing route intensities.
+
+### Banking Page
+![Banking Page](assets/img3.png)
+
+The Banking page implements FuelEU Article 20, allowing users to bank surplus compliance credits and apply them to offset deficits. It displays KPIs including CB (before), Applied amount, and CB (after).
+
+### Pooling Page
+![Pooling Page](assets/img4.png)
+
+The Pooling page implements FuelEU Article 21, enabling users to create pooling groups to redistribute compliance balances among multiple routes. It shows adjusted CB values, pool sum indicators, and before/after results.
+
+### About Page
+![About Page](assets/img5.png)
+
+The About page provides comprehensive documentation about the platform's functionality, purpose, core formulas, and technical details.
+
 ### Key Features
 
 - **Route Management**: Track and manage shipping routes with comprehensive data including vessel types, fuel consumption, distances, and emissions
