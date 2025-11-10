@@ -34,18 +34,18 @@ export function BankingPage() {
         <input
           type="text"
           placeholder="Route Code (e.g., R001)"
-          className="border p-2 rounded"
+          className="border rounded px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
           value={routeCode}
           onChange={(e) => setRouteCode(e.target.value)}
         />
         <input
           type="number"
           placeholder="Year"
-          className="border p-2 rounded"
+          className="border rounded px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
         />
-        <button onClick={loadCB} className="px-3 py-1 bg-gray-700 text-white rounded">
+        <button onClick={loadCB} className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition">
           Load CB
         </button>
       </div>
@@ -56,12 +56,12 @@ export function BankingPage() {
           <p><b>Compliance Balance:</b> {cbData.cb_tonnesCO2e.toFixed(2)} tCO₂e</p>
 
           {cbData.cb_tonnesCO2e > 0 && (
-            <button className="px-3 py-1 bg-green-600 text-white rounded" onClick={handleBank}>
+            <button className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition" onClick={handleBank}>
               Bank Surplus
             </button>
           )}
           {cbData.cb_tonnesCO2e < 0 && (
-            <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={handleApply}>
+            <button className="px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-700 transition" onClick={handleApply}>
               Apply Banked Surplus
             </button>
           )}
