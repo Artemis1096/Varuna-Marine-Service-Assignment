@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { getRoutesHandler, setBaselineHandler } from './adapters/inbound/http/routesController';
 import { getRoutesComparisonHandler } from './adapters/inbound/http/routesComparisonController';
-import { getCBHandler } from './adapters/inbound/http/complianceController';
+import { getCBHandler, getAdjustedCBHandler } from './adapters/inbound/http/complianceController';
 import { bankSurplusHandler, applyBankedHandler } from './adapters/inbound/http/bankingController';
 import { createPoolHandler } from './adapters/inbound/http/poolingController';
 
@@ -29,6 +29,7 @@ app.get('/routes/comparison', getRoutesComparisonHandler);
 
 // Compliance endpoints
 app.get('/compliance/cb', getCBHandler);
+app.get('/compliance/adjusted-cb', getAdjustedCBHandler);
 
 // Banking endpoints
 app.post('/banking/bank', bankSurplusHandler);

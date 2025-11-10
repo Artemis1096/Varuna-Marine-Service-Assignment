@@ -1,9 +1,7 @@
 import { RoutesRepositoryPort } from '../ports/routes/RoutesRepositoryPort';
 import { GetComparisonPort } from '../ports/routes/GetComparisonPort';
 import { computeGHGIntensity } from './computeGHGIntensity';
-
-// FuelEU Maritime target intensity (gCO2e/MJ)
-const TARGET_INTENSITY = 91.16; // gCO2e/MJ
+import { FUELEU_TARGET_INTENSITY_GCO2E_PER_MJ } from '../../../shared/constants/fuelEU';
 
 export interface RouteComparisonResult {
   routeCode: string;
@@ -68,7 +66,7 @@ export class GetRoutesComparisonService implements GetComparisonPort {
 
       // Check compliance
       // compliant = compIntensity <= TARGET_INTENSITY
-      const compliant = compIntensity <= TARGET_INTENSITY;
+      const compliant = compIntensity <= FUELEU_TARGET_INTENSITY_GCO2E_PER_MJ;
 
       results.push({
         routeCode: route.routeCode,
