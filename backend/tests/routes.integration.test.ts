@@ -14,14 +14,18 @@ app.get('/routes', getRoutesHandler);
 const prisma = new PrismaClient();
 
 describe('GET /routes - Filter Integration Tests', () => {
-  beforeAll(async () => {
-    // Seed test data with multiple fuels/years
+  beforeEach(async () => {
+    // Clean up between tests to ensure isolation
+    await prisma.bankEntry.deleteMany({});
+    await prisma.shipCompliance.deleteMany({});
+    // Delete all routes and recreate only this test's routes
     await prisma.route.deleteMany({});
 
+    // Use unique routeCodes to avoid conflicts with other test files
     await prisma.route.createMany({
       data: [
         {
-          routeCode: 'R001',
+          routeCode: 'ROUTE_R001',
           vesselType: 'Container',
           origin: 'Port A',
           destination: 'Port B',
@@ -34,7 +38,7 @@ describe('GET /routes - Filter Integration Tests', () => {
           is_baseline: true,
         },
         {
-          routeCode: 'R002',
+          routeCode: 'ROUTE_R002',
           vesselType: 'Container',
           origin: 'Port C',
           destination: 'Port D',
@@ -47,7 +51,7 @@ describe('GET /routes - Filter Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R003',
+          routeCode: 'ROUTE_R003',
           vesselType: 'BulkCarrier',
           origin: 'Port E',
           destination: 'Port F',
@@ -60,7 +64,7 @@ describe('GET /routes - Filter Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R004',
+          routeCode: 'ROUTE_R004',
           vesselType: 'Container',
           origin: 'Port G',
           destination: 'Port H',
@@ -73,7 +77,7 @@ describe('GET /routes - Filter Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R005',
+          routeCode: 'ROUTE_R005',
           vesselType: 'Tanker',
           origin: 'Port I',
           destination: 'Port J',
@@ -107,8 +111,8 @@ describe('GET /routes - Filter Integration Tests', () => {
       expect(response.body.length).toBe(2);
       
       const routeCodes = response.body.map((r: any) => r.routeCode);
-      expect(routeCodes).toContain('R002');
-      expect(routeCodes).toContain('R004');
+      expect(routeCodes).toContain('ROUTE_R002');
+      expect(routeCodes).toContain('ROUTE_R004');
       
       // Verify all returned routes match the filter
       response.body.forEach((route: any) => {
@@ -178,7 +182,7 @@ describe('GET /routes - Filter Integration Tests', () => {
       
       // Should return only R004
       expect(response.body.length).toBe(1);
-      expect(response.body[0].routeCode).toBe('R004');
+      expect(response.body[0].routeCode).toBe('ROUTE_R004');
       expect(response.body[0].vesselType).toBe('Container');
       expect(response.body[0].fuelType).toBe('HFO');
       expect(response.body[0].year).toBe(2025);

@@ -14,16 +14,25 @@ app.get('/compliance/adjusted-cb', getAdjustedCBHandler);
 const prisma = new PrismaClient();
 
 describe('GET /compliance/adjusted-cb Integration Tests', () => {
+  beforeEach(async () => {
+    // Clean up between tests to ensure isolation
+    await prisma.bankEntry.deleteMany({});
+    await prisma.shipCompliance.deleteMany({});
+    await prisma.route.updateMany({ data: { is_baseline: false } });
+  });
+
   beforeAll(async () => {
     // Clean up and seed test data
     await prisma.bankEntry.deleteMany({});
+    await prisma.shipCompliance.deleteMany({});
     await prisma.route.deleteMany({});
 
     // Create routes with different fuel types for testing
+    // Use unique routeCodes to avoid conflicts with other test files
     await prisma.route.createMany({
       data: [
         {
-          routeCode: 'R001',
+          routeCode: 'ADJ_R001',
           vesselType: 'Container',
           origin: 'Port A',
           destination: 'Port B',
@@ -36,7 +45,7 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R002',
+          routeCode: 'ADJ_R002',
           vesselType: 'BulkCarrier',
           origin: 'Port C',
           destination: 'Port D',
@@ -49,7 +58,7 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R003',
+          routeCode: 'ADJ_R003',
           vesselType: 'Tanker',
           origin: 'Port E',
           destination: 'Port F',
@@ -62,7 +71,7 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
           is_baseline: false,
         },
         {
-          routeCode: 'R004',
+          routeCode: 'ADJ_R004',
           vesselType: 'RoRo',
           origin: 'Port G',
           destination: 'Port H',
@@ -136,15 +145,18 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
     });
 
     it('should calculate adjusted CB correctly with applied bank entries', async () => {
+      // Clean up any existing bank entries first
+      await prisma.bankEntry.deleteMany({});
+      
       // First, create some applied bank entries
-      const route1 = await prisma.route.findUnique({ where: { routeCode: 'R001' } });
-      const route2 = await prisma.route.findUnique({ where: { routeCode: 'R002' } });
+      const route1 = await prisma.route.findUnique({ where: { routeCode: 'ADJ_R001' } });
+      const route2 = await prisma.route.findUnique({ where: { routeCode: 'ADJ_R002' } });
 
       if (route1 && route2) {
         // Create applied bank entry for R001 (1 tonne = 1,000,000 gCO2e)
         await prisma.bankEntry.create({
           data: {
-            routeCode: 'R001',
+            routeCode: 'ADJ_R001',
             routeId: route1.id,
             year: 2024,
             amount: 0.5, // 0.5 tonnes = 500,000 gCO2e
@@ -156,7 +168,7 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
         // Create another applied bank entry for R001
         await prisma.bankEntry.create({
           data: {
-            routeCode: 'R001',
+            routeCode: 'ADJ_R001',
             routeId: route1.id,
             year: 2024,
             amount: 0.3, // 0.3 tonnes = 300,000 gCO2e
@@ -173,7 +185,7 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
 
         expect(response.status).toBe(200);
         
-        const r001Result = response.body.find((item: any) => item.shipId === 'R001');
+        const r001Result = response.body.find((item: any) => item.shipId === 'ADJ_R001');
         expect(r001Result).toBeDefined();
         
         // Verify adjusted CB = raw CB + applied bank entries
@@ -190,10 +202,10 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
         .query({ year: 2025 });
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1); // Only R004 for year 2025
+      expect(response.body.length).toBe(1); // Only ADJ_R004 for year 2025
 
       const r004Result = response.body[0];
-      expect(r004Result.shipId).toBe('R004');
+      expect(r004Result.shipId).toBe('ADJ_R004');
       
       // When no bank entries are applied, adjusted CB should equal raw CB
       expect(r004Result.cb_adjusted).toBe(r004Result.cb_before);
@@ -211,12 +223,12 @@ describe('GET /compliance/adjusted-cb Integration Tests', () => {
       expect(response2024.status).toBe(200);
       expect(response2025.status).toBe(200);
 
-      // 2024 should have 3 routes (R001, R002, R003)
+      // 2024 should have 3 routes (ADJ_R001, ADJ_R002, ADJ_R003)
       expect(response2024.body.length).toBe(3);
       
-      // 2025 should have 1 route (R004)
+      // 2025 should have 1 route (ADJ_R004)
       expect(response2025.body.length).toBe(1);
-      expect(response2025.body[0].shipId).toBe('R004');
+      expect(response2025.body[0].shipId).toBe('ADJ_R004');
     });
   });
 });

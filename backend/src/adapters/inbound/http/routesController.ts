@@ -7,7 +7,7 @@ const routesRepo = new RoutesRepository();
 const getRoutes = new GetRoutesService(routesRepo);
 const setBaseline = new SetBaselineService(routesRepo);
 
-export async function getRoutesHandler(req: Request, res: Response) {
+export async function getRoutesHandler(req: Request, res: Response): Promise<void> {
   try {
     const { vesselType, fuelType, year } = req.query;
 
@@ -15,7 +15,8 @@ export async function getRoutesHandler(req: Request, res: Response) {
     if (year !== undefined && year !== null && year !== '') {
       const yearNum = Number(year);
       if (isNaN(yearNum) || !Number.isInteger(yearNum)) {
-        return res.status(400).json({ error: 'year must be a valid integer' });
+        res.status(400).json({ error: 'year must be a valid integer' });
+        return;
       }
     }
 
