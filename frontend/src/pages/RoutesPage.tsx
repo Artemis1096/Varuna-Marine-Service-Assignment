@@ -27,31 +27,31 @@ export function RoutesPage() {
     <div className="p-6">
       <h1 className="text-xl font-semibold mb-4">Routes</h1>
 
-      <table className="w-full border text-left text-sm">
-        <thead className="bg-gray-100">
+      <table className="w-full border-collapse text-sm">
+        <thead className="bg-gray-100 text-xs uppercase tracking-wide">
           <tr>
-            <th className="p-2 border">Route Code</th>
-            <th className="p-2 border">Origin → Destination</th>
-            <th className="p-2 border">Fuel</th>
-            <th className="p-2 border">Year</th>
-            <th className="p-2 border">Baseline</th>
-            <th className="p-2 border"></th>
+            <th className="border px-3 py-2">Route Code</th>
+            <th className="border px-3 py-2">Origin → Destination</th>
+            <th className="border px-3 py-2">Fuel</th>
+            <th className="border px-3 py-2">Year</th>
+            <th className="border px-3 py-2">Baseline</th>
+            <th className="border px-3 py-2"></th>
           </tr>
         </thead>
 
         <tbody>
           {routes.map((r) => (
-            <tr key={r.routeCode}>
-              <td className="p-2 border">{r.routeCode}</td>
-              <td className="p-2 border">{r.origin} → {r.destination}</td>
-              <td className="p-2 border">{r.fuelType}</td>
-              <td className="p-2 border">{r.year}</td>
-              <td className="p-2 border">{r.is_baseline ? "✅" : "❌"}</td>
-              <td className="p-2 border">
+            <tr key={r.routeCode} className="hover:bg-gray-50 transition">
+              <td className="border px-3 py-2">{r.routeCode}</td>
+              <td className="border px-3 py-2">{r.origin} → {r.destination}</td>
+              <td className="border px-3 py-2">{r.fuelType}</td>
+              <td className="border px-3 py-2">{r.year}</td>
+              <td className="border px-3 py-2">{r.is_baseline ? "✅" : "❌"}</td>
+              <td className="border px-3 py-2">
                 {!r.is_baseline && (
                   <button
                     onClick={() => handleSetBaseline(r.routeCode)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded"
+                    className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
                   >
                     Set Baseline
                   </button>

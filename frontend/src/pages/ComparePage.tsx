@@ -25,24 +25,24 @@ export function ComparePage() {
     <div className="p-6 space-y-6">
       <h1 className="text-xl font-semibold">GHG Intensity Comparison</h1>
 
-      <table className="w-full border text-left text-sm">
-        <thead className="bg-gray-100">
+      <table className="w-full border-collapse text-sm">
+        <thead className="bg-gray-100 text-xs uppercase tracking-wide">
           <tr>
-            <th className="p-2 border">Route Code</th>
-            <th className="p-2 border">Baseline Intensity</th>
-            <th className="p-2 border">Comparison Intensity</th>
-            <th className="p-2 border">% Difference</th>
-            <th className="p-2 border">Compliant</th>
+            <th className="border px-3 py-2">Route Code</th>
+            <th className="border px-3 py-2">Baseline Intensity</th>
+            <th className="border px-3 py-2">Comparison Intensity</th>
+            <th className="border px-3 py-2">% Difference</th>
+            <th className="border px-3 py-2">Compliant</th>
           </tr>
         </thead>
         <tbody>
           {data.map((r) => (
-            <tr key={r.routeCode}>
-              <td className="p-2 border">{r.routeCode}</td>
-              <td className="p-2 border">{r.baselineIntensity.toFixed(2)}</td>
-              <td className="p-2 border">{r.comparisonIntensity.toFixed(2)}</td>
-              <td className="p-2 border">{r.percentDiff.toFixed(2)}%</td>
-              <td className="p-2 border">{r.compliant ? "✅" : "❌"}</td>
+            <tr key={r.routeCode} className="hover:bg-gray-50 transition">
+              <td className="border px-3 py-2">{r.routeCode}</td>
+              <td className="border px-3 py-2">{r.baselineIntensity.toFixed(2)}</td>
+              <td className="border px-3 py-2">{r.comparisonIntensity.toFixed(2)}</td>
+              <td className="border px-3 py-2">{r.percentDiff.toFixed(2)}%</td>
+              <td className="border px-3 py-2">{r.compliant ? "✅" : "❌"}</td>
             </tr>
           ))}
         </tbody>
