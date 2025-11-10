@@ -1,8 +1,8 @@
 export interface BankingPort {
-  getCB(routeCode: string, year: number): Promise<any>;
+  getCB(shipId: string, year: number): Promise<any>;
 
-  bankSurplus(routeCode: string, year: number): Promise<any>;
+  bankSurplus(shipId: string, year: number, amount_gco2eq: number): Promise<any>;
 
-  applyBanked(routeCode: string, year: number): Promise<any>;
+  applyBanked(shipId: string, year: number, amount_gco2eq: number): Promise<any>;
 }
 

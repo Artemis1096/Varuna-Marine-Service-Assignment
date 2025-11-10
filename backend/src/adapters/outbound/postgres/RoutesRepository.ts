@@ -8,12 +8,32 @@ export class RoutesRepository implements RoutesRepositoryPort {
     this.prisma = new PrismaClient();
   }
 
-  async findAll(_filters?: { vesselType?: string; fuelType?: string; year?: number }) {
+  async findAll(filters?: { vesselType?: string; fuelType?: string; year?: number }) {
+    const where: any = {};
+
+    // vesselType: equals (case-insensitive)
+    if (filters?.vesselType) {
+      where.vesselType = {
+        equals: filters.vesselType,
+        mode: 'insensitive',
+      };
+    }
+
+    // fuelType: equals (case-insensitive)
+    if (filters?.fuelType) {
+      where.fuelType = {
+        equals: filters.fuelType,
+        mode: 'insensitive',
+      };
+    }
+
+    // year: exact integer match
+    if (filters?.year !== undefined && filters?.year !== null) {
+      where.year = filters.year;
+    }
+
     return this.prisma.route.findMany({
-      where: {
-        // These fields depend on your earlier route schema, adjust accordingly:
-        // name, origin, destination, etc. are untouched.
-      },
+      where,
     });
   }
 

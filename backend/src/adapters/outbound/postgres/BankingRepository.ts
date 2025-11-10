@@ -54,5 +54,19 @@ export class BankingRepository implements BankingRepositoryPort {
       },
     });
   }
+
+  async getAppliedBanked(routeCode: string, year: number): Promise<number> {
+    // Get sum of applied bank entries for this route/year (in tonnes)
+    const result = await this.prisma.bankEntry.aggregate({
+      where: {
+        routeCode,
+        year,
+        type: 'APPLIED',
+        applied: true,
+      },
+      _sum: { amount: true },
+    });
+    return result._sum.amount || 0; // Returns tonnes
+  }
 }
 

@@ -7,30 +7,49 @@ export class ApplyBankedService {
     private readonly bankingRepo: BankingRepositoryPort
   ) {}
 
-  async execute(routeCode: string, year: number) {
+  async execute(routeCode: string, year: number, amount_gco2eq: number) {
     const cb = await this.getCB.execute(routeCode, year);
 
-    if (cb.cb_tonnesCO2e >= 0) {
-      throw new Error('This route does not have a deficit; no need to apply surplus.');
+    // cb_before is the raw computed CB BEFORE any banking application (in gCO2e)
+    const cb_before = cb.cb_gCO2e;
+
+    // Validate: amount_gco2eq > 0
+    if (amount_gco2eq <= 0) {
+      const error: any = new Error('Amount must be greater than zero');
+      error.code = 'INVALID_AMOUNT';
+      throw error;
     }
 
-    const deficit = Math.abs(cb.cb_tonnesCO2e);
-    const available = await this.bankingRepo.getAvailableBanked(routeCode, year);
+    // Get available banked amount (in tonnes) and convert to gCO2e
+    const available_tonnes = await this.bankingRepo.getAvailableBanked(routeCode, year);
+    const available_gco2eq = available_tonnes * 1_000_000;
 
-    if (available <= 0) {
-      throw new Error('No banked surplus available.');
+    // Validate: check if any banked amount is available first
+    if (available_gco2eq <= 0) {
+      const error: any = new Error('No banked surplus available');
+      error.code = 'NO_BANKED_SURPLUS';
+      throw error;
     }
 
-    const applyAmount = Math.min(deficit, available);
+    // Validate: amount ≤ banked available
+    if (amount_gco2eq > available_gco2eq) {
+      const error: any = new Error('Amount exceeds available banked surplus');
+      error.code = 'AMOUNT_EXCEEDS_AVAILABLE';
+      throw error;
+    }
 
-    await this.bankingRepo.markApplied(routeCode, year, applyAmount);
+    // Convert amount from gCO2e to tonnes for storage
+    const amount_tonnes = amount_gco2eq / 1_000_000;
+    await this.bankingRepo.markApplied(routeCode, year, amount_tonnes);
+
+    // Calculate cb_after = cb_before + applied (toward zero)
+    // If cb_before is negative (deficit), adding positive amount reduces the deficit
+    const cb_after = cb_before + amount_gco2eq;
 
     return {
-      routeCode,
-      year,
-      applied: applyAmount,
-      deficit_before: deficit,
-      deficit_after: deficit - applyAmount,
+      cb_before,
+      applied: amount_gco2eq,
+      cb_after,
     };
   }
 }

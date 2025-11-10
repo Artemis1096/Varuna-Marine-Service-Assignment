@@ -8,13 +8,40 @@ const getRoutes = new GetRoutesService(routesRepo);
 const setBaseline = new SetBaselineService(routesRepo);
 
 export async function getRoutesHandler(req: Request, res: Response) {
-  const { vesselType, fuelType, year } = req.query;
-  const routes = await getRoutes.execute({
-    vesselType: vesselType as string,
-    fuelType: fuelType as string,
-    year: year ? Number(year) : undefined,
-  });
-  res.json(routes);
+  try {
+    const { vesselType, fuelType, year } = req.query;
+
+    // Validate year parameter if provided
+    if (year !== undefined && year !== null && year !== '') {
+      const yearNum = Number(year);
+      if (isNaN(yearNum) || !Number.isInteger(yearNum)) {
+        return res.status(400).json({ error: 'year must be a valid integer' });
+      }
+    }
+
+    const filters: { vesselType?: string; fuelType?: string; year?: number } = {};
+    
+    if (vesselType && typeof vesselType === 'string') {
+      filters.vesselType = vesselType;
+    }
+    
+    if (fuelType && typeof fuelType === 'string') {
+      filters.fuelType = fuelType;
+    }
+    
+    if (year !== undefined && year !== null && year !== '') {
+      filters.year = Number(year);
+    }
+
+    const routes = await getRoutes.execute(filters);
+    res.json(routes);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }
 
 export async function setBaselineHandler(req: Request, res: Response) {

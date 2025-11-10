@@ -12,16 +12,19 @@ export const BackendApi = {
 
   getComparison: () => api.get("/routes/comparison"),
 
-  getCB: (routeCode: string, year: number) =>
-    api.get("/compliance/cb", { params: { routeCode, year }}),
+  getCB: (shipId: string, year: number) =>
+    api.get("/compliance/cb", { params: { shipId, year }}),
 
-  bankSurplus: (routeCode: string, year: number) =>
-    api.post("/banking/bank", { routeCode, year }),
+  bankSurplus: (shipId: string, year: number, amount_gco2eq: number) =>
+    api.post("/banking/bank", { shipId, year, amount_gco2eq }),
 
-  applyBanked: (routeCode: string, year: number) =>
-    api.post("/banking/apply", { routeCode, year }),
+  applyBanked: (shipId: string, year: number, amount_gco2eq: number) =>
+    api.post("/banking/apply", { shipId, year, amount_gco2eq }),
 
-  createPool: (name: string, year: number, members: string[]) =>
-    api.post("/pools", { name, year, members })
+  createPool: (year: number, members: Array<{ shipId: string; cb_before: number }>) =>
+    api.post("/pools", { year, members }),
+
+  getAdjustedCB: (year: number) =>
+    api.get("/compliance/adjusted-cb", { params: { year } })
 };
 
