@@ -81,6 +81,43 @@ Solution:
 
 Key Learning: Tailwind CSS v4 uses `@variant` directive in CSS instead of `darkMode` in config file.
 
+### Example 7: Shared UI Components & Error Handling
+
+Prompt: "Improve UX across pages with shared components and normalized error handling."
+
+Output:
+- Created shared ErrorBanner, Loading, and SuccessBanner components in `src/ui/components/`
+- Updated all pages (Routes, Compare, Banking, Pooling) to use shared components
+- Normalized API error handling to consistently handle `{ error, code }` format
+- Added disabled/loading states to all action buttons to prevent duplicate submissions
+- Implemented proper error display with dismissible banners and field-level validation
+
+Key Features:
+- Consistent error display across all pages
+- Loading states for async operations
+- Success feedback for user actions
+- Button state management to prevent duplicate submissions
+
+### Example 8: Theme System & Styling Improvements
+
+Prompt: "Improve overall styling with Tailwind: create theme system, update tables, buttons, KPIs, and charts."
+
+Output:
+- Created `src/shared/theme.ts` with shared Tailwind classNames for consistent styling
+- Updated all pages to use theme classes (pageContainer, sectionSpacing, pageTitle, etc.)
+- Improved tables with `rounded-2xl`, `shadow-md`, `divide-y`, and hover row highlights
+- Standardized buttons with primary/secondary variants and disabled states
+- Created KPI card grid layout with `rounded-2xl`, `shadow-md`, and proper spacing
+- Enhanced chart cards with padding, titles, and subtle shadows
+- Ensured all colors are dark-mode friendly
+
+Key Improvements:
+- Single source of truth for styling (theme.ts)
+- Consistent visual design across all pages
+- Responsive spacing and layout
+- Dark mode support throughout
+- Better visual hierarchy with shadows and rounded corners
+
 ## Validation & Corrections
 
 - Verified each API with Postman / Browser.
@@ -99,6 +136,16 @@ Key Learning: Tailwind CSS v4 uses `@variant` directive in CSS instead of `darkM
 
 - Verified dark mode functionality after configuration fix.
 
+- Fixed JSX syntax error in RoutesPage: Missing closing div tag for padding wrapper.
+
+- Fixed BankingPage bug: `handleApply` was calling `setLoading(false)` instead of `setApplying(false)`, preventing button re-enabling.
+
+- Validated shared components work correctly across all pages.
+
+- Tested error handling and loading states for all async operations.
+
+- Verified theme classes are applied consistently across all components.
+
 ## Observations
 
 - Cursor is excellent for structured tasks and incremental diffs.
@@ -115,6 +162,16 @@ Key Learning: Tailwind CSS v4 uses `@variant` directive in CSS instead of `darkM
 
 - Version-specific configuration differences (Tailwind v3 vs v4) require careful documentation review.
 
+- Shared components significantly reduce code duplication and ensure consistency.
+
+- Theme system (shared classNames) makes styling updates easier and more maintainable.
+
+- Normalized error handling improves user experience and debugging.
+
+- Button state management (loading/disabled) prevents user confusion and duplicate submissions.
+
+- Careful attention to state variable names prevents bugs (e.g., `setLoading` vs `setApplying`).
+
 ## Best Practices Followed
 
 - Maintained Hexagonal Architecture.
@@ -128,3 +185,15 @@ Key Learning: Tailwind CSS v4 uses `@variant` directive in CSS instead of `darkM
 - Dark mode implemented with proper state management and persistence.
 
 - Clean codebase with no empty placeholder files.
+
+- Shared UI components (ErrorBanner, Loading, SuccessBanner) for consistency.
+
+- Theme system with centralized Tailwind classNames for maintainability.
+
+- Normalized API error handling across all pages.
+
+- Proper loading and disabled states for all async operations.
+
+- Responsive design with consistent spacing and layout.
+
+- Dark mode support throughout all components.

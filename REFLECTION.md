@@ -42,6 +42,14 @@ This project demonstrated how AI-assisted development can support both architect
 
 - Debugging process involved extensive console logging to track state changes and DOM manipulation, revealing the issue was configuration-related rather than code logic.
 
+- JSX syntax errors can be subtle - missing closing tags require careful structure review.
+
+- State management bugs (e.g., wrong state variable) can cause UI issues that are hard to spot initially.
+
+- Ensuring consistent error handling across all pages required systematic updates.
+
+- Theme system implementation required careful consideration of which classes to centralize vs. keep inline.
+
 ## Recent Improvements
 
 ### Codebase Cleanup
@@ -68,6 +76,32 @@ This project demonstrated how AI-assisted development can support both architect
   - Solution: Added `@variant dark (&:where(.dark, .dark *));` to CSS and removed `darkMode` from config
   - Debugging: Used console logs to verify DOM class application and identify configuration issue
 
+### Shared UI Components & Error Handling
+- Created reusable ErrorBanner, Loading, and SuccessBanner components
+- Normalized API error handling to consistently handle `{ error, code }` format
+- Updated all pages (Routes, Compare, Banking, Pooling) to use shared components
+- Added proper error display with dismissible banners and field-level validation
+- Implemented loading states for all async operations
+- Added success feedback for user actions
+- **Benefits**: Reduced code duplication, improved consistency, better user experience
+
+### Theme System & Styling Improvements
+- Created `src/shared/theme.ts` with centralized Tailwind classNames
+- Updated all pages to use theme classes for consistent styling
+- Improved tables with `rounded-2xl`, `shadow-md`, `divide-y`, and hover effects
+- Standardized buttons with primary/secondary variants and disabled states
+- Created KPI card grid layout with proper spacing and shadows
+- Enhanced chart cards with padding, titles, and subtle shadows
+- **Benefits**: Single source of truth for styling, easier maintenance, consistent design
+
+### Bug Fixes
+- Fixed JSX syntax error in RoutesPage (missing closing div tag)
+- Fixed BankingPage bug: `handleApply` was calling `setLoading(false)` instead of `setApplying(false)`
+  - Issue: Apply button wasn't re-enabling after operation
+  - Root cause: Wrong state variable being reset
+  - Solution: Changed to `setApplying(false)` in finally block
+  - Impact: Button now correctly re-enables after applying surplus
+
 ## Improvements for Future
 
 - Add unit test coverage for banking and pooling edge cases.
@@ -78,10 +112,22 @@ This project demonstrated how AI-assisted development can support both architect
 
 - Consider adding theme customization options (beyond light/dark).
 
-- Add loading states and error boundaries for better UX.
+- Add loading states and error boundaries for better UX (✅ Partially completed - loading states added).
 
 - Implement responsive design improvements for mobile devices.
 
 - Document version-specific configuration requirements (e.g., Tailwind v4 vs v3) to avoid similar issues.
 
 - Create a troubleshooting checklist for common UI issues (state updates but no visual changes).
+
+- Add integration tests for shared components to ensure they work correctly in all contexts.
+
+- Consider adding animation/transition effects for better user feedback.
+
+- Implement form validation library for more robust input validation.
+
+- Add accessibility improvements (ARIA labels, keyboard navigation, screen reader support).
+
+- Create component documentation/storybook for shared components.
+
+- Add performance optimizations (memoization, lazy loading, code splitting).
