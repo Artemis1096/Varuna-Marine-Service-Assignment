@@ -1,36 +1,51 @@
 import { Request, Response } from 'express';
 import { CreatePoolService } from '../../../core/application/services/createPool';
-import { GetCBService } from '../../../core/application/services/getCB';
-import { PoolingRepository } from '../../outbound/postgres/PoolingRepository';
-import { RoutesRepository } from '../../outbound/postgres/RoutesRepository';
 
-const routesRepo = new RoutesRepository();
-const getCB = new GetCBService(routesRepo);
-const poolingRepo = new PoolingRepository(routesRepo);
-const createPool = new CreatePoolService(getCB, poolingRepo);
+const createPool = new CreatePoolService();
 
 export async function createPoolHandler(req: Request, res: Response): Promise<void> {
   try {
-    const { name, year, members } = req.body;
+    const { year, members } = req.body;
 
-    if (!name || !year || !members || !Array.isArray(members)) {
-      res.status(400).json({ error: 'name, year, and members (array) are required' });
+    if (!year || !members || !Array.isArray(members)) {
+      res.status(400).json({ error: 'year and members (array) are required', code: 'MISSING_PARAMS' });
       return;
     }
 
-    const result = await createPool.execute(name, Number(year), members);
+    // Validate members structure
+    if (members.length === 0) {
+      res.status(400).json({ error: 'Pool must have at least one member', code: 'INVALID_POOL' });
+      return;
+    }
+
+    for (const member of members) {
+      if (!member.shipId || member.cb_before === undefined) {
+        res.status(400).json({ error: 'Each member must have shipId and cb_before', code: 'INVALID_MEMBER' });
+        return;
+      }
+    }
+
+    const yearNum = Number(year);
+    if (isNaN(yearNum) || !Number.isInteger(yearNum)) {
+      res.status(400).json({ error: 'year must be a valid integer', code: 'INVALID_YEAR' });
+      return;
+    }
+
+    const result = createPool.execute(yearNum, members);
     res.json(result);
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        res.status(404).json({ error: error.message });
-      } else if (error.message.includes('cannot have net deficit')) {
-        res.status(400).json({ error: error.message });
+      const errorCode = (error as any).code || 'INVALID_REQUEST';
+      if (errorCode === 'POOL_SUM_NEGATIVE' || errorCode === 'DEFICIT_SHIP_WORSE' || errorCode === 'SURPLUS_SHIP_NEGATIVE' || errorCode === 'INVALID_POOL') {
+        res.status(400).json({ error: error.message, code: errorCode });
+        return;
       } else {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message, code: errorCode });
+        return;
       }
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
+      return;
     }
   }
 }

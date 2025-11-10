@@ -8,11 +8,7 @@
  */
 
 import { computeGHGIntensity } from './computeGHGIntensity';
-
-// FuelEU Maritime target intensity (gCO2e/MJ)
-// This is the reference value for compliance calculation
-// For 2025: 91.16 gCO2e/MJ (decreases over time)
-const TARGET_INTENSITY = 91.16; // gCO2e/MJ
+import { FUELEU_TARGET_INTENSITY_GCO2E_PER_MJ } from '../../../shared/constants/fuelEU';
 
 // Conversion factor: grams to tonnes
 const GRAMS_PER_TONNE = 1_000_000;
@@ -45,7 +41,7 @@ export function computeCB(
   // CB = (TARGET_INTENSITY - actual_intensity) * energy_MJ
   // Positive value = surplus (better than target)
   // Negative value = deficit (worse than target)
-  const cb_gCO2e = (TARGET_INTENSITY - intensity_gCO2e_per_MJ) * energy_MJ;
+  const cb_gCO2e = (FUELEU_TARGET_INTENSITY_GCO2E_PER_MJ - intensity_gCO2e_per_MJ) * energy_MJ;
 
   // Convert to tonnes CO2e
   const cb_tonnesCO2e = cb_gCO2e / GRAMS_PER_TONNE;

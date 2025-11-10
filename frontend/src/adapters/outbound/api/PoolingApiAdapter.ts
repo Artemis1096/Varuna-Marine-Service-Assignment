@@ -1,9 +1,14 @@
 import { BackendApi } from "./BackendApi";
-import type { PoolingPort } from "../../../core/ports/PoolingPort";
+import type { PoolingPort, AdjustedCBData, CreatePoolResult, PoolMemberInput } from "../../../core/ports/PoolingPort";
 
 export const PoolingApiAdapter: PoolingPort = {
-  async createPool(name, year, members) {
-    const res = await BackendApi.createPool(name, year, members);
+  async getAdjustedCB(year) {
+    const res = await BackendApi.getAdjustedCB(year);
+    return res.data;
+  },
+
+  async createPool(year, members) {
+    const res = await BackendApi.createPool(year, members);
     return res.data;
   }
 };

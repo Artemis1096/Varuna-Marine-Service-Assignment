@@ -1,87 +1,287 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { RoutesApiAdapter } from "../adapters/outbound/api/RoutesApiAdapter";
-import { btnPrimary } from "@/shared/styles";
+import { ErrorBanner, Loading } from "@/ui/components";
+import {
+  pageContainer,
+  sectionSpacing,
+  pageTitle,
+  filterContainer,
+  inputBase,
+  btnPrimary,
+  btnSecondary,
+  tableContainer,
+  table,
+  tableHeader,
+  tableHeaderCell,
+  tableRow,
+  tableCell,
+} from "@/shared/theme";
+
+// Fixed fallback options
+const VESSEL_TYPE_OPTIONS = ["Container", "BulkCarrier", "Tanker", "RoRo"];
+const FUEL_TYPE_OPTIONS = ["HFO", "LNG", "MGO"];
 
 export function RoutesPage() {
   const [routes, setRoutes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{ error: string; code?: string } | null>(null);
+  const [settingBaseline, setSettingBaseline] = useState<string | null>(null);
+  const [filters, setFilters] = useState<{
+    vesselType?: string;
+    fuelType?: string;
+    year?: number;
+  }>({});
 
-  async function loadRoutes() {
+  // Extract unique values from current dataset
+  const vesselTypeOptions = useMemo(() => {
+    const unique = Array.from(new Set(routes.map(r => r.vesselType).filter(Boolean)));
+    return unique.length > 0 ? unique : VESSEL_TYPE_OPTIONS;
+  }, [routes]);
+
+  const fuelTypeOptions = useMemo(() => {
+    const unique = Array.from(new Set(routes.map(r => r.fuelType).filter(Boolean)));
+    return unique.length > 0 ? unique : FUEL_TYPE_OPTIONS;
+  }, [routes]);
+
+  const yearOptions = useMemo(() => {
+    const unique = Array.from(new Set(routes.map(r => r.year).filter(Boolean))).sort((a, b) => b - a);
+    return unique;
+  }, [routes]);
+
+  async function loadRoutes(filterParams?: { vesselType?: string; fuelType?: string; year?: number }) {
     setLoading(true);
-    const data = await RoutesApiAdapter.getRoutes();
-    setRoutes(data);
-    setLoading(false);
+    setError(null);
+    try {
+      const data = await RoutesApiAdapter.getRoutes(filterParams);
+      setRoutes(data);
+    } catch (err: any) {
+      console.error('Failed to load routes:', err);
+      if (err.response?.data) {
+        setError(err.response.data);
+      } else {
+        setError({ error: err.message || "Failed to load routes", code: "UNKNOWN_ERROR" });
+      }
+      setRoutes([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSetBaseline(routeCode: string) {
-    await RoutesApiAdapter.setBaseline(routeCode);
-    await loadRoutes();
+    if (settingBaseline) return; // Prevent duplicate submissions
+    
+    setSettingBaseline(routeCode);
+    setError(null);
+    try {
+      await RoutesApiAdapter.setBaseline(routeCode);
+      await loadRoutes(filters);
+    } catch (err: any) {
+      if (err.response?.data) {
+        setError(err.response.data);
+      } else {
+        setError({ error: err.message || "Failed to set baseline", code: "UNKNOWN_ERROR" });
+      }
+    } finally {
+      setSettingBaseline(null);
+    }
+  }
+
+  function handleFilterChange(key: 'vesselType' | 'fuelType' | 'year', value: string | number | '') {
+    const newFilters = { ...filters };
+    
+    if (value === '' || value === undefined) {
+      delete newFilters[key];
+    } else {
+      if (key === 'year') {
+        newFilters[key] = value ? Number(value) : undefined;
+      } else {
+        newFilters[key] = value as string;
+      }
+    }
+    
+    setFilters(newFilters);
+    loadRoutes(newFilters);
+  }
+
+  function handleClearFilters() {
+    setFilters({});
+    loadRoutes();
   }
 
   useEffect(() => {
     loadRoutes();
   }, []);
 
-  if (loading) return <div className="space-y-6"><div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm text-gray-900 dark:text-gray-100">Loading...</div></div>;
+  const hasActiveFilters = Object.keys(filters).length > 0;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Routes</h1>
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-colors">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-left">Route Code</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-left">Vessel Type</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-left">Origin → Destination</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right">Distance (km)</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-left">Fuel Type</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right">Fuel Consumption (t)</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right">Year</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right">GHG Intensity</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right">Total Emissions (t)</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-center">Baseline</th>
-                <th className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {routes.map((r) => (
-                <tr key={r.routeCode} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 font-medium text-gray-800 dark:text-gray-200">{r.routeCode}</td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-gray-800 dark:text-gray-200">{r.vesselType || '-'}</td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-gray-800 dark:text-gray-200">{r.origin} → {r.destination}</td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right text-gray-800 dark:text-gray-200">
-                    {r.distance != null ? r.distance.toLocaleString('en-US', { maximumFractionDigits: 0 }) : '-'}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-gray-800 dark:text-gray-200">{r.fuelType || '-'}</td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right text-gray-800 dark:text-gray-200">
-                    {r.fuelConsumptionTonnes != null ? r.fuelConsumptionTonnes.toLocaleString('en-US', { maximumFractionDigits: 1 }) : '-'}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right text-gray-800 dark:text-gray-200">{r.year || '-'}</td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right text-gray-800 dark:text-gray-200">
-                    {r.ghgIntensity != null ? r.ghgIntensity.toFixed(1) : '-'}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-right text-gray-800 dark:text-gray-200">
-                    {r.totalEmissions != null ? r.totalEmissions.toLocaleString('en-US', { maximumFractionDigits: 1 }) : '-'}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-center text-gray-800 dark:text-gray-200">
-                    {r.is_baseline ? "✅" : "❌"}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 px-3 py-2 text-center">
-                    {!r.is_baseline && (
-                      <button
-                        onClick={() => handleSetBaseline(r.routeCode)}
-                        className={btnPrimary}
-                      >
-                        Set Baseline
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className={pageContainer}>
+      <div className={sectionSpacing}>
+        <h1 className={pageTitle}>Routes</h1>
+        
+        {/* Error Banner */}
+        {error && (
+          <ErrorBanner error={error.error} code={error.code} onDismiss={() => setError(null)} />
+        )}
+        
+        {/* Filters Section */}
+        <div className={filterContainer}>
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[150px]">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Vessel Type
+              </label>
+              <select
+                value={filters.vesselType || ''}
+                onChange={(e) => handleFilterChange('vesselType', e.target.value)}
+                className={inputBase}
+              >
+                <option value="">All Vessel Types</option>
+                {vesselTypeOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Fuel Type
+              </label>
+              <select
+                value={filters.fuelType || ''}
+                onChange={(e) => handleFilterChange('fuelType', e.target.value)}
+                className={inputBase}
+              >
+                <option value="">All Fuel Types</option>
+                {fuelTypeOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[120px]">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Year
+              </label>
+              {yearOptions.length > 0 ? (
+                <select
+                  value={filters.year || ''}
+                  onChange={(e) => handleFilterChange('year', e.target.value)}
+                  className={inputBase}
+                >
+                  <option value="">All Years</option>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="number"
+                  placeholder="Year (e.g., 2024)"
+                  value={filters.year || ''}
+                  onChange={(e) => handleFilterChange('year', e.target.value)}
+                  className={inputBase}
+                />
+              )}
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearFilters}
+                className={btnSecondary}
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Routes Table */}
+        <div className={tableContainer}>
+          <div className="p-4 sm:p-6">
+            {loading ? (
+              <Loading message="Loading routes..." />
+            ) : routes.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {hasActiveFilters 
+                    ? 'No routes found matching the selected filters.' 
+                    : 'No routes available.'}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Clear filters to see all routes
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className={table}>
+                  <thead>
+                    <tr className={tableHeader}>
+                      <th className={`${tableHeaderCell} text-left`}>Route Code</th>
+                      <th className={`${tableHeaderCell} text-left`}>Vessel Type</th>
+                      <th className={`${tableHeaderCell} text-left`}>Origin → Destination</th>
+                      <th className={`${tableHeaderCell} text-right`}>Distance (km)</th>
+                      <th className={`${tableHeaderCell} text-left`}>Fuel Type</th>
+                      <th className={`${tableHeaderCell} text-right`}>Fuel Consumption (t)</th>
+                      <th className={`${tableHeaderCell} text-right`}>Year</th>
+                      <th className={`${tableHeaderCell} text-right`}>GHG Intensity</th>
+                      <th className={`${tableHeaderCell} text-right`}>Total Emissions (t)</th>
+                      <th className={`${tableHeaderCell} text-center`}>Baseline</th>
+                      <th className={`${tableHeaderCell} text-center`}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {routes.map((r) => (
+                      <tr key={r.routeCode} className={tableRow}>
+                        <td className={`${tableCell} font-medium`}>{r.routeCode}</td>
+                        <td className={tableCell}>{r.vesselType || '-'}</td>
+                        <td className={tableCell}>{r.origin} → {r.destination}</td>
+                        <td className={`${tableCell} text-right`}>
+                          {r.distance != null ? r.distance.toLocaleString('en-US', { maximumFractionDigits: 0 }) : '-'}
+                        </td>
+                        <td className={tableCell}>{r.fuelType || '-'}</td>
+                        <td className={`${tableCell} text-right`}>
+                          {r.fuelConsumptionTonnes != null ? r.fuelConsumptionTonnes.toLocaleString('en-US', { maximumFractionDigits: 1 }) : '-'}
+                        </td>
+                        <td className={`${tableCell} text-right`}>{r.year || '-'}</td>
+                        <td className={`${tableCell} text-right`}>
+                          {r.ghgIntensity != null ? r.ghgIntensity.toFixed(1) : '-'}
+                        </td>
+                        <td className={`${tableCell} text-right`}>
+                          {r.totalEmissions != null ? r.totalEmissions.toLocaleString('en-US', { maximumFractionDigits: 1 }) : '-'}
+                        </td>
+                        <td className={`${tableCell} text-center`}>
+                          {r.is_baseline ? "✅" : "❌"}
+                        </td>
+                        <td className={`${tableCell} text-center`}>
+                          {!r.is_baseline && (
+                            <button
+                              onClick={() => handleSetBaseline(r.routeCode)}
+                              disabled={settingBaseline === r.routeCode || settingBaseline !== null}
+                              className={btnPrimary}
+                            >
+                              {settingBaseline === r.routeCode ? "Setting..." : "Set Baseline"}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
